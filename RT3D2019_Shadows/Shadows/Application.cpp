@@ -288,16 +288,21 @@ void Application::RenderShadow()
 	//*************************************************************************
 	// Your code to adjust the perspective projection of the light goes here
 	// You will need to calculate fovy, zn and zf instead of using these default values:
-	float fovy = 0.8f;
-	float aspect = 1.2f;
+	float aspect = RENDER_TARGET_HEIGHT / RENDER_TARGET_WIDTH;
 
 	XMVECTOR LightPos = XMLoadFloat3(&m_shadowCastingLightPosition);
 	XMVECTOR LightToPlane = vPlanePos - LightPos;
 	XMVECTOR NearLengthVector = XMVector4Length(LightToPlane);
-	XMFLOAT4 Temp;
-	XMStoreFloat4(&Temp, NearLengthVector);
-	float zn = Temp.z - AEROPLANE_RADIUS;
-	float zf = Temp.z + AEROPLANE_RADIUS;
+	float Length;
+	XMStoreFloat(&Length, NearLengthVector);
+	float zn = Length - AEROPLANE_RADIUS;
+	if (zn < 0.1f)
+	{
+		zn = 0.1f;
+	}
+	float zf = Length + AEROPLANE_RADIUS;
+	
+	float fovy = atanf(AEROPLANE_RADIUS / Length) * 2;
 
 	// You will find the following constants (defined above) useful:
 	// RENDER_TARGET_WIDTH, RENDER_TARGET_HEIGHT, AEROPLANE_RADIUS
